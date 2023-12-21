@@ -1,1 +1,1 @@
-web: gunicorn Nutrition_Warrior_Apis:app
+web: gunicorn Nutrition_Warrior_Apis.wsgi:application
