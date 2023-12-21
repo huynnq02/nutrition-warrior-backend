@@ -1,4 +1,5 @@
 Nutrition Warrior
+
 This project is a Django web application.
 
 ## Prerequisites
