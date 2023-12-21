@@ -1,0 +1,9 @@
+pymongo
+djangorestframework
+cloudinary
+mongoengine
+django
+bcrypt
+python-dotenv
+django-rest-framework-mongoengine
+django-extensions
