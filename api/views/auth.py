@@ -34,7 +34,7 @@ def create_user(request):
         password = request.data.get('password')
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         request.data['password'] = hashed_password
-
+        
         user = User(**request.data)
         user.save()
 
@@ -106,7 +106,7 @@ def login_user(request):
 
         user = User.objects.get(email=email)
         is_match = bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))
-        if is_match:
+        if is_match:    
             user_data = UserSerializer(user).data
             # Password is correct, authentication successful
             return Response({'success': True, 'message': 'Login successful', 'data': user_data}, status=200)
