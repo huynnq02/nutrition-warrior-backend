@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-c^wjv&#-tgop@+g^*a^6p%622+0j9q&nqgy*g94pkglc83lh4p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['nutrition-warrior.onrender.com', 'www.nutrition-warrior.onrender.com','127.0.0.1']
+# ALLOWED_HOSTS = ['nutrition-warrior.onrender.com', 'www.nutrition-warrior.onrender.com','127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
