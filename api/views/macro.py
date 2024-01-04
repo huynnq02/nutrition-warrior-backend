@@ -3,9 +3,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
 from ..models.user import User  # Import your User model
+from django.db.models import signals
+from datetime import timedelta, datetime
+from background_task import background
+
+
+CALORIES_MODIFY_MIN = 200
+CALORIES_MODIFY_MAX = 500
+KG_TO_LBS = 2.20462262
+
 
 @api_view(['POST'])
-def calculate_expenditure_method_1(request):
+def calculate_expenditure_method_1(request, id):
     """
     Calculate TDEE using Method 1.
 
@@ -30,6 +39,8 @@ def calculate_expenditure_method_1(request):
             tdee = weight*16
         elif activity_level == "More Active":
             tdee = weight*18
+        user_id = request.data.get('user_id')  
+
 
         return Response({'tdee': tdee}, status=status.HTTP_200_OK)
 
@@ -39,36 +50,38 @@ def calculate_expenditure_method_1(request):
 def calculate_average(logs, field):
     return sum(getattr(log, field) for log in logs) / len(logs)
 
-KG_TO_LBS = 2.20462262
 @api_view(['POST'])
 def calculate_expenditure_method_2(request, id):
     
     try:
         user = User.objects.get(id=id)
-        weekly_logs = user.weekly_logs
-        if len(weekly_logs) < 2:
+        daily_logs = user.daily_logs
+        if len(daily_logs) < 14:
             return Response({'success': False, 'message': 'Insufficient data for calculation'}, status=status.HTTP_400_BAD_REQUEST)
-        # week1 = weekly_logs[0]
-        # week2 = weekly_logs[1]
-        sorted_weekly_logs = sorted(weekly_logs, key=lambda x: x.week_number, reverse=True)
-        week1 = sorted_weekly_logs[1]
-        week2 = sorted_weekly_logs[0]
+        sorted_daily_logs = sorted(sorted_daily_logs, key=lambda x: x.date, reverse=True)
 
-        week1_weight = calculate_average(week1.days, 'weight')
-        week2_weight = calculate_average(week2.days, 'weight')
-        week1_calories = calculate_average(week1.days, 'caloric_intake')
-        week2_calories = calculate_average(week2.days, 'caloric_intake')
+        if datetime.utcnow().date() == sorted_daily_logs[0].date.date():
+            week2_logs = sorted_daily_logs[1:8]
+            week1_logs = sorted_daily_logs[8:15] 
+        else: 
+            week2_logs = sorted_daily_logs[0:7]
+            week1_logs = sorted_daily_logs[7:14]
+        week2_weight = calculate_average(week2_logs, 'weight')
+        week2_calories = calculate_average(week2_logs, 'caloric_intake')
+        week1_weight = calculate_average(week1_logs, 'weight')
+        week1_calories = calculate_average(week1_logs, 'caloric_intake')
+
         average_colories = (week1_calories+ week2_calories)/2
         weight_change = (week2_weight - week1_weight) * KG_TO_LBS
 
         if weight_change == 0:
             tdee_min = tdee_max = average_colories
         elif 0.5 <= weight_change <= 1:
-            tdee_min = average_colories + 200
-            tdee_max = average_colories + 500
+            tdee_min = average_colories + CALORIES_MODIFY_MIN
+            tdee_max = average_colories + CALORIES_MODIFY_MAX
         elif -1 <= weight_change <= -0.5:
-            tdee_max = average_colories - 200
-            tdee_min = average_colories - 500
+            tdee_max = average_colories - CALORIES_MODIFY_MIN
+            tdee_min = average_colories - CALORIES_MODIFY_MAX
         else:
             return Response({'success': False, 'message': 'Invalid weight change'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,7 +89,54 @@ def calculate_expenditure_method_2(request, id):
 
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def re_calculate_expenditure_method_2(request, id):
     
+    try:
+        user = User.objects.get(id=id)
+        daily_logs = user.daily_logs
+
+        if len(daily_logs) < 14:
+            return Response({'success': False, 'message': 'Insufficient data for calculation'}, status=status.HTTP_200_OK)
+        
+        sorted_daily_logs = sorted(sorted_daily_logs, key=lambda x: x.date, reverse=True)
+
+        today_in_logs = sorted_daily_logs[0].date.date() == datetime.utcnow().date() 
+
+        if len(daily_logs) % 14 != (1 if today_in_logs else 0):
+            return Response({'success': False, 'message': 'Invalid number of daily logs for calculation'}, status=status.HTTP_200_OK)
+        
+     
+        if datetime.utcnow().date() == sorted_daily_logs[0].date.date():
+            week2_logs = sorted_daily_logs[1:8]
+            week1_logs = sorted_daily_logs[8:15] 
+        else: 
+            week2_logs = sorted_daily_logs[0:7]
+            week1_logs = sorted_daily_logs[7:14]
+        week2_weight = calculate_average(week2_logs, 'weight')
+        week2_calories = calculate_average(week2_logs, 'caloric_intake')
+        week1_weight = calculate_average(week1_logs, 'weight')
+        week1_calories = calculate_average(week1_logs, 'caloric_intake')
+
+        average_colories = (week1_calories+ week2_calories)/2
+        weight_change = (week2_weight - week1_weight) * KG_TO_LBS
+
+        if weight_change == 0:
+            tdee_min = tdee_max = average_colories
+        elif 0.5 <= weight_change <= 1:
+            tdee_min = average_colories + CALORIES_MODIFY_MIN
+            tdee_max = average_colories + CALORIES_MODIFY_MAX
+        elif -1 <= weight_change <= -0.5:
+            tdee_max = average_colories - CALORIES_MODIFY_MIN
+            tdee_min = average_colories - CALORIES_MODIFY_MAX
+        else:
+            return Response({'success': False, 'message': 'Invalid weight change'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'tdee_min': tdee_min, 'tdee_max': tdee_max}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
 @api_view(['POST'])
 def calculate_macros(request, id):
     """

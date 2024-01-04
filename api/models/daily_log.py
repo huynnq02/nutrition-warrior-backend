@@ -2,7 +2,7 @@ from mongoengine import Document, DateTimeField, StringField, EmailField, Decima
 from .food import Food
 
 class DailyLog(EmbeddedDocument):  
-    date = DateTimeField(required=True) # DD/MM/YYYY 
+    date = DateTimeField(required=True)
 
     caloric_intake = DecimalField()
     protein_intake = DecimalField()

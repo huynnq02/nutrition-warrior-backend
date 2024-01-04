@@ -9,3 +9,4 @@ django-rest-framework-mongoengine
 django-extensions
 gunicorn
 requests
+channels
