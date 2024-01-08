@@ -10,5 +10,5 @@ urlpatterns = [
     path('/food', include(food_urls)),
     path('/daily-log', include(daily_log_urls)),
     # path('/background-task', include(background_task_urls)),
-
+  
 ]

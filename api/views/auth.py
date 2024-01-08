@@ -9,6 +9,12 @@ from ..models.user import User
 from ..config import *
 import bcrypt
 
+from django.core.mail import send_mail
+from ..models.otp import OTP
+from ..serializers.otp import OTPSerializer
+from datetime import datetime, timedelta
+import random
+
 
 @api_view(['POST'])
 def create_user(request):
@@ -118,5 +124,36 @@ def login_user(request):
         # User not found
         return Response({'success': False, 'message': 'User not found'}, status=404)
 
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=500)
+
+@api_view(['POST'])
+def reset_password(request):
+    """
+    """
+    try:
+        email = request.data.get('email') 
+        otp_code = str(random.randint(10000,99999))
+        expiration_time = datetime.now() + timedelta(minutes=2)
+        serializer = OTPSerializer(data=otp_data)
+        otp_data = {
+            'email': email, 
+            'otp_code':otp_code, 
+            'expiration_time':expiration_time
+            }
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUES)
+        
+        subject = "Password Reset OTP"
+        message = f'Your OTP is {otp_code}'
+        from_email = '20521133@gm.uit.edu.vn'
+        recipient_list = [email]
+
+        send_mail(subject, message, from_email, recipient_list)
+
+        return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
+    
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=500)

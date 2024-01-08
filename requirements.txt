@@ -10,3 +10,4 @@ django-extensions
 gunicorn
 requests
 channels
+djangorestframework-simplejwt
