@@ -12,3 +12,4 @@ requests
 channels
 pillow
 djangorestframework-simplejwt
+django-background-tasks
