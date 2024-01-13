@@ -11,3 +11,4 @@ gunicorn
 requests
 channels
 pillow
+rest_framework_simplejwt
