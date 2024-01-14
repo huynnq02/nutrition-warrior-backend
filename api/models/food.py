@@ -1,5 +1,5 @@
 from mongoengine import Document, StringField, DictField, EmailField, DecimalField, EmbeddedDocument, ListField, EmbeddedDocumentField
-from background_task import background
+# from background_task import background
 
 class Food(EmbeddedDocument):
     foodId = StringField()

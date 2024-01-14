@@ -1,5 +1,5 @@
 from mongoengine import Document, StringField, EmailField, DecimalField, DictField, EmbeddedDocument, ListField, EmbeddedDocumentField
-from background_task import background
+# from background_task import background
 # from .weekly_log import WeeklyLog
 from datetime import datetime, timedelta
 from .daily_log import DailyLog
