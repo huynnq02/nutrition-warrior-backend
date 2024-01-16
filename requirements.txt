@@ -13,3 +13,7 @@ channels
 pillow
 djangorestframework-simplejwt
 django-background-tasks
+opencv-python
+numpy
+darknetpy
+yolov8
