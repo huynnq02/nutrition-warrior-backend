@@ -9,6 +9,12 @@ from ..models.user import User
 from ..config import *
 import bcrypt
 
+from django.core.mail import send_mail
+from ..models.otp import OTP
+from ..serializers.otp import OTPSerializer
+from datetime import datetime, timedelta
+import random
+
 
 @api_view(['POST'])
 def create_user(request):
@@ -120,3 +126,74 @@ def login_user(request):
 
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=500)
+
+@api_view(['POST'])
+def reset_password(request):
+    """
+    """
+    try:
+        email = request.data.get('email') 
+        user = User.objects.get(email=email)
+        if user:
+            otp_code = str(random.randint(10000,99999))
+            expiration_time = datetime.now() + timedelta(minutes=2)
+            otp_data = {
+                'email': email, 
+                'otp_code':otp_code, 
+                'expiration_time':expiration_time
+                }
+            serializer = OTPSerializer(data=otp_data)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        else:
+             return Response({'success': False,'message': 'User not found'},status=status.HTTP_404_NOT_FOUND)
+        
+        subject = "Password Reset OTP"
+        message = f'Your OTP is {otp_code}'
+        recipient_list = [email]
+
+        send_mail(subject, message, None, recipient_list)
+
+        return Response({'sucess': False, 'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=500)
+    
+@api_view(['POST'])
+def auth_otp(request):
+    """
+    """
+    try:
+        otp_code = request.data.get('otp') 
+        email = request.data.get('email') 
+        otp = OTP.objects(email=email,otp_code=otp_code).first()
+        if otp:
+            check_expire = otp.expiration_time > datetime.now()
+            if check_expire: 
+                return Response({'success': True,'message': 'OTP is valid'}, status=status.HTTP_200_OK)
+        return Response({'success':False,'message': 'OTP is invalid'},status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=500)
+    
+@api_view(['POST'])
+def change_password(request):
+    """
+    """
+    try:
+        email = request.data.get('email') 
+        new_password = request.data.get('password') 
+
+        user = User.objects.get(email=email)
+        if user:
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            user.password = hashed_password
+            user.save()
+            return Response({'success': True,'message': 'Reset password successfully'}, status=status.HTTP_200_OK)
+        return Response({'success':False,'message': 'Reset password failed'},status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=500)
+    

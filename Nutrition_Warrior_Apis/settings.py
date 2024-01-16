@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'api',
     'django_extensions',
     'rest_framework_simplejwt',
-    'channels'
+    'channels',
 
 ]
 
@@ -150,3 +150,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'          # Địa chỉ máy chủ SMTP của Gmail
+EMAIL_PORT = 587                       # Cổng máy chủ SMTP của Gmail
+EMAIL_USE_TLS = True                   # Sử dụng TLS (bắt buộc cho Gmail)
+EMAIL_HOST_USER = 'nutritionwarrior2024@gmail.com'  # Địa chỉ email Gmail của bạn
+EMAIL_HOST_PASSWORD = 'Pro12345@'  # Mật khẩu ứng dụng hoặc mật khẩu Gmail của bạn
+DEFAULT_FROM_EMAIL = 'nutritionwarrior2024@gmail.com' 

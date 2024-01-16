@@ -17,5 +17,5 @@ urlpatterns = [
     path('/detection', include(detection_urls)),
 
     # path('/background-task', include(background_task_urls)),
-
+  
 ]
