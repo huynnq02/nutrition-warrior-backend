@@ -158,20 +158,23 @@ def calculate_macros(request, id):
         weight = request.data.get('weight')
         overweight = request.data.get('overweight')
         daily_protein_ker_kg = request.data.get('daily_protein_ker_kg')
+        daily_protein_for_overweight_people = request.data.get('daily_protein_for_overweight_people')
+
         tdee = request.data.get('tdee')
+  
         if goal == "Lose Fat":
             deficit_percentage = request.data.get('deficit_percentage')
             caloric_intake = tdee*(1-deficit_percentage/100)
         elif goal == "Gain Muscle":
             surplus_percentage = request.data.get('surplus_percentage')
             caloric_intake = tdee*(1+surplus_percentage/100)
-        elif goal == "Maintain":
+        elif goal == "Maintanence":
             caloric_intake = tdee
-
-        if overweight == "Yes":
-            daily_protein = height
-        elif overweight == "No":
+        if overweight == False:
             daily_protein = daily_protein_ker_kg*weight
+        elif overweight == True:
+            daily_protein = daily_protein_for_overweight_people 
+            
 
         daily_fat_percentage = request.data.get('daily_fat_percentage')
         daily_fat = caloric_intake*daily_fat_percentage/100/9

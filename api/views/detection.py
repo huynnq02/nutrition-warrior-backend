@@ -5,6 +5,7 @@ from ultralytics import YOLO
 import numpy as np
 import os
 import json
+from ..model.class_name import class_names
 @api_view(['POST'])
 def detect_objects(request):
     """
@@ -55,15 +56,22 @@ def detect_objects(request):
             if len(bboxes) == 0:
                 continue
 
-            if len(bboxes) > 0:
-                out.append({
-                    'bboxes': np.array(bboxes),
-                    'classes': np.array(labels),
-                    'scores': np.array(scores),
-                })
+            simplified_objects = []
+            unique_classes = []
+
+            for i in range(len(bboxes)):
+                cls = labels[i]
+                score = scores[i]
+                class_name = class_names[cls]
+                if score > 0.5 and cls not in unique_classes:
+                    unique_classes.append(cls)
+                    simplified_objects.append([cls, class_name, score])
+
+    
+           
 
 
-        return Response({'success': True, 'message': 'Object detection successful', 'detected_objects': out}, status=status.HTTP_200_OK)
+        return Response({'success': True, 'message': 'Object detection successful', 'detected_objects': simplified_objects}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
