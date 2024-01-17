@@ -16,7 +16,7 @@ urlpatterns = [
     path('/exercises', include(exercise_urls)),
     path('/tips', include(tip_urls)),
     path('/detection', include(detection_urls)),
-    path('/', include(macro_urls))
+    path('/macro', include(macro_urls))
     # path('/background-task', include(background_task_urls)),
   
 ]
