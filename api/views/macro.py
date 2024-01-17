@@ -194,8 +194,19 @@ def update_expenditure(request, id):
         user = User.objects.get(id=id)
 
         tdee = request.data.get('tdee')
+        goal = request.data.get('goal')
+        caloric_intake_goal = request.data.get('caloric_intake_goal')
+        daily_protein_goal = request.data.get('daily_protein_goal')
+        daily_fat_goal = request.data.get('daily_fat_goal')
+        daily_carb_goal = request.data.get('daily_carb_goal')
 
         user.tdee = tdee
+        user.goal = goal
+        user.caloric_intake_goal = caloric_intake_goal
+        user.daily_protein_goal = daily_protein_goal
+        user.daily_fat_goal = daily_fat_goal
+        user.daily_carb_goal = daily_carb_goal
+
         user.save()
 
         return Response({'success': True, 'message': 'Expenditure updated successfully'}, status=status.HTTP_200_OK)
