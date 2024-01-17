@@ -14,7 +14,7 @@ KG_TO_LBS = 2.20462262
 
 
 @api_view(['POST'])
-def calculate_expenditure_method_1(request, id):
+def calculate_expenditure_method_1(request):
     """
     Calculate TDEE using Method 1.
 
@@ -39,7 +39,7 @@ def calculate_expenditure_method_1(request, id):
             tdee = weight*16
         elif activity_level == "More Active":
             tdee = weight*18
-        user_id = request.data.get('user_id')  
+        # user_id = request.data.get('user_id')  
 
 
         return Response({'tdee': tdee}, status=status.HTTP_200_OK)
