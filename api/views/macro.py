@@ -188,3 +188,20 @@ def calculate_macros(request, id):
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['PUT'])
+def update_expenditure(request, id):
+    try:
+        user = User.objects.get(id=id)
+
+        tdee = request.data.get('tdee')
+
+        user.tdee = tdee
+        user.save()
+
+        return Response({'success': True, 'message': 'Expenditure updated successfully'}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
