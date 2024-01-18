@@ -1,12 +1,69 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from ..models.user import User
+from ..models.daily_log import DailyLog
+from ..models.exercise import Exercise
+import datetime
 import requests
 import os
 
 rapid_api_key = os.getenv('X-RapidAPI-Key')
 rapid_api_host = os.getenv('X-RapidAPI-Host')
 
+
+@api_view(['POST'])
+def add_exercise_to_daily_log(request, user_id):
+    """
+    Add an exercise to the daily log of a user.
+
+    Parameters:
+    - user_id (str): The ID of the user.
+
+    Request data:
+    - exercise_data (dict): Exercise details including body_part, equipment, gif_url, name, target, secondary_muscles, and instructions.
+    - sets (list): List of sets with reps and duration.
+
+    Returns:
+    Response: The HTTP response indicating the success or failure of the operation.
+    """
+    try:
+        user = User.objects.get(id=user_id)
+
+        today = datetime.now().date()
+        existing_daily_log = DailyLog.objects(date__date=today, id__in=[daily_log.id for daily_log in user.daily_logs]).first()
+
+        if existing_daily_log:
+            daily_log = existing_daily_log
+        else:
+            daily_log_data = {
+                "date": today,
+                "exercise_data": []
+            }
+            daily_log = DailyLog(**daily_log_data)
+            daily_log.save()
+
+            user.daily_logs.append(daily_log)
+            user.save()
+
+        exercise_data = request.data.get('exercise_data')
+        exercise = Exercise(**exercise_data)
+        exercise.save()
+
+        sets_data = request.data.get('sets')
+        sets = [{"reps": set_data.get('reps'), "duration": set_data.get('duration')} for set_data in sets_data]
+
+        daily_log.exercise_data.append({"exercise": exercise, "sets": sets})
+        daily_log.save()
+
+        return Response({'success': True, 'message': 'Exercise added to daily log successfully'}, status=status.HTTP_201_CREATED)
+
+    except User.DoesNotExist:
+        return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL)
+    
 #TODO: get_exercise_by_id
 
 @api_view(['GET'])
