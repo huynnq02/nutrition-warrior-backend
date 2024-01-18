@@ -14,7 +14,7 @@ KG_TO_LBS = 2.20462262
 
 
 @api_view(['POST'])
-def calculate_expenditure_method_1(request, id):
+def calculate_expenditure_method_1(request):
     """
     Calculate TDEE using Method 1.
 
@@ -39,7 +39,7 @@ def calculate_expenditure_method_1(request, id):
             tdee = weight*16
         elif activity_level == "More Active":
             tdee = weight*18
-        user_id = request.data.get('user_id')  
+        # user_id = request.data.get('user_id')  
 
 
         return Response({'tdee': tdee}, status=status.HTTP_200_OK)
@@ -197,8 +197,19 @@ def update_expenditure(request, id):
         user = User.objects.get(id=id)
 
         tdee = request.data.get('tdee')
+        goal = request.data.get('goal')
+        caloric_intake_goal = request.data.get('caloric_intake_goal')
+        daily_protein_goal = request.data.get('daily_protein_goal')
+        daily_fat_goal = request.data.get('daily_fat_goal')
+        daily_carb_goal = request.data.get('daily_carb_goal')
 
         user.tdee = tdee
+        user.goal = goal
+        user.caloric_intake_goal = caloric_intake_goal
+        user.daily_protein_goal = daily_protein_goal
+        user.daily_fat_goal = daily_fat_goal
+        user.daily_carb_goal = daily_carb_goal
+
         user.save()
 
         return Response({'success': True, 'message': 'Expenditure updated successfully'}, status=status.HTTP_200_OK)

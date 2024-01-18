@@ -11,6 +11,8 @@ class User(Document):
     address = StringField()
     password = StringField(required=True)
     profile_picture = StringField()
+    gender = StringField()
+    date_of_birth = StringField()
 
     daily_logs = ListField(EmbeddedDocumentField(DailyLog))
     caloric_intake_goal = DecimalField()
