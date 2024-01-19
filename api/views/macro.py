@@ -198,6 +198,8 @@ def update_expenditure(request, id):
 
         tdee = request.data.get('tdee')
         goal = request.data.get('goal')
+        current_weight = request.data.get('current_weight')
+        height = request.data.get('height')
         caloric_intake_goal = request.data.get('caloric_intake_goal')
         daily_protein_goal = request.data.get('daily_protein_goal')
         daily_fat_goal = request.data.get('daily_fat_goal')
@@ -205,6 +207,8 @@ def update_expenditure(request, id):
 
         user.tdee = tdee
         user.goal = goal
+        user.current_weight =current_weight
+        user.height = height
         user.caloric_intake_goal = caloric_intake_goal
         user.daily_protein_goal = daily_protein_goal
         user.daily_fat_goal = daily_fat_goal
