@@ -48,6 +48,12 @@ def add_food_to_daily_log(request, user_id, date):
             daily_log_instance.carb_intake += new_food_item.nutrients.get("CHOCDF", 0)
             daily_log_instance.fat_intake += new_food_item.nutrients.get("FAT", 0)
 
+            # Update the remaining values
+            daily_log_instance.caloric_remain = max(0, user.caloric_intake_goal - daily_log_instance.caloric_intake)
+            daily_log_instance.protein_remain = max(0, user.daily_protein_goal - daily_log_instance.protein_intake)
+            daily_log_instance.carb_remain = max(0, user.daily_carb_goal - daily_log_instance.carb_intake)
+            daily_log_instance.fat_remain = max(0, user.daily_fat_goal - daily_log_instance.fat_intake)
+
             user.save()
             return Response(model_to_dict(user))
         else:

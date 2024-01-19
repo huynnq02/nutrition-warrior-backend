@@ -11,13 +11,24 @@ class ExerciseData(EmbeddedDocument):
     exercise = EmbeddedDocumentField(Exercise)
 
 class DailyLog(EmbeddedDocument):  
-    date = DateTimeField(default=datetime.datetime.now().date())
+    date = DateTimeField(default=datetime.datetime.now().date().isoformat())
 
     caloric_intake = DecimalField(default=0.0)
     protein_intake = DecimalField(default=0.0)
     carb_intake = DecimalField(default=0.0)
     fat_intake = DecimalField(default=0.0)
 
+    caloric_remain = DecimalField(default=0.0)
+    protein_remain = DecimalField(default=0.0)
+    carb_remain = DecimalField(default=0.0)
+    fat_remain = DecimalField(default=0.0)
+
+    caloric_intake_goal = DecimalField(default=0.0)
+    daily_protein_goal = DecimalField(default=0.0)
+    daily_carb_goal = DecimalField(default=0.0)
+    daily_fat_goal = DecimalField(default=0.0)
+    
+    goal = StringField(default="")
     weight = DecimalField(default=0.0)
     
     breakfast = ListField(EmbeddedDocumentField(Food), default=[])
