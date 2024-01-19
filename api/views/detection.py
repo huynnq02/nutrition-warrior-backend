@@ -24,9 +24,9 @@ def detect_objects(request):
         # Load the YOLOv8n model
         model_path = os.path.join(os.path.dirname(__file__), '..', 'model', 'nutrition-warrior-model.pt')
         model = YOLO(model_path)
-
+        print("Go inside it!")
         image_file = request.FILES.get('image')
-
+        print(image_file)
         if not image_file:
             return Response({'success': False, 'message': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -38,6 +38,8 @@ def detect_objects(request):
         print(results_list)
 
         out = []
+        simplified_objects = []
+        unique_classes = []
         for result in results_list:
             bboxes = []
             labels = []
@@ -56,8 +58,7 @@ def detect_objects(request):
             if len(bboxes) == 0:
                 continue
 
-            simplified_objects = []
-            unique_classes = []
+            
 
             for i in range(len(bboxes)):
                 cls = labels[i]

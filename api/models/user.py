@@ -1,4 +1,4 @@
-from mongoengine import Document, DateTimeField, StringField, EmailField, DecimalField, DictField, EmbeddedDocument, ListField, EmbeddedDocumentField
+from mongoengine import Document,BooleanField, DateTimeField, StringField, EmailField, DecimalField, DictField, EmbeddedDocument, ListField, EmbeddedDocumentField
 # from background_task import background
 # from .weekly_log import WeeklyLog
 from datetime import datetime, timedelta
@@ -24,34 +24,8 @@ class User(Document):
     height = DecimalField(default=0.0)
     current_weight = DecimalField(default=0.0)
     
-    first_login = DateTimeField()
-    @property
-    def caloric_remain(self):
-        today = datetime.now().date()
-        today_logs = [log for log in self.daily_logs if log.date.date() == today]
-        total_caloric_intake = sum(log.caloric_intake for log in today_logs)
-        return max(0, self.caloric_intake_goal - total_caloric_intake)
-
-    @property
-    def protein_remain(self):
-        today = datetime.now().date()
-        today_logs = [log for log in self.daily_logs if log.date.date() == today]
-        total_protein_intake = sum(log.protein_intake for log in today_logs)
-        return max(0, self.daily_protein_goal - total_protein_intake)
-
-    @property
-    def carb_remain(self):
-        today = datetime.now().date()
-        today_logs = [log for log in self.daily_logs if log.date.date() == today]
-        total_carb_intake = sum(log.carb_intake for log in today_logs)
-        return max(0, self.daily_carb_goal - total_carb_intake)
-
-    @property
-    def fat_remain(self):
-        today = datetime.now().date()
-        today_logs = [log for log in self.daily_logs if log.date.date() == today]
-        total_fat_intake = sum(log.fat_intake for log in today_logs)
-        return max(0, self.daily_fat_goal - total_fat_intake)
+    first_login = BooleanField(default = True)
+  
     meta = {
         'collection': 'users'  
     }

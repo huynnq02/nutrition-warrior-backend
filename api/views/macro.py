@@ -217,6 +217,22 @@ def update_expenditure(request, id):
         user.first_login = datetime.now()
         user.save()
 
+        today = datetime.now().date()
+        today_log = next((log for log in user.daily_logs if log.date.date() == today), None)
+        if today_log:
+            today_log.goal = goal
+            today_log.caloric_intake_goal = caloric_intake_goal
+            today_log.daily_protein_goal = daily_protein_goal
+            today_log.daily_fat_goal = daily_fat_goal
+            today_log.daily_carb_goal = daily_carb_goal
+
+            today_log.caloric_remain = max(0, caloric_intake_goal - today_log.caloric_intake)
+            today_log.protein_remain = max(0, daily_protein_goal - today_log.protein_intake)
+            today_log.carb_remain = max(0, daily_carb_goal - today_log.carb_intake)
+            today_log.fat_remain = max(0, daily_fat_goal - today_log.fat_intake)
+
+            today_log.save()
+
         return Response({'success': True, 'message': 'Expenditure updated successfully'}, status=status.HTTP_200_OK)
 
     except User.DoesNotExist:

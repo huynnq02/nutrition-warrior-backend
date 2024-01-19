@@ -8,7 +8,7 @@ import cloudinary.uploader
 from ..models.user import User
 from ..config import *
 import bcrypt
-
+from ..models.daily_log import DailyLog
 from django.core.mail import send_mail
 from ..models.otp import OTP
 from ..serializers.otp import OTPSerializer
@@ -112,19 +112,28 @@ def login_user(request):
 
         user = User.objects.get(email=email)
         is_match = bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))
+        print(1)
         if is_match:    
-            if not user.first_login:
-                user.first_login = datetime.datetime.now()
+            if user.first_login:
+                user.first_login = False
                 user.save()
+            print(2)
+
+            if not user.daily_logs:
+                print(2.4)
+                today_log = DailyLog(date=datetime.now().date().isoformat())
+                print(2.5)
+                user.daily_logs.append(today_log)
+                user.save()
+            print(3)
+
             user_data = UserSerializer(user).data
-            # Password is correct, authentication successful
+
             return Response({'success': True, 'message': 'Login successful', 'data': user_data}, status=200)
         else:
-            # Password is incorrect
             return Response({'success': False, 'message': 'Incorrect password'}, status=401)
 
     except User.DoesNotExist:
-        # User not found
         return Response({'success': False, 'message': 'User not found'}, status=404)
 
     except Exception as e:
