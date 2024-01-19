@@ -210,6 +210,7 @@ def update_expenditure(request, id):
         user.daily_fat_goal = daily_fat_goal
         user.daily_carb_goal = daily_carb_goal
 
+        user.first_login = datetime.now()
         user.save()
 
         today = datetime.now().date()
