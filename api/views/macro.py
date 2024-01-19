@@ -210,6 +210,7 @@ def update_expenditure(request, id):
         user.daily_fat_goal = daily_fat_goal
         user.daily_carb_goal = daily_carb_goal
 
+        user.first_login = datetime.now()
         user.save()
 
         return Response({'success': True, 'message': 'Expenditure updated successfully'}, status=status.HTTP_200_OK)
