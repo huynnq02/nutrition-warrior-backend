@@ -113,6 +113,9 @@ def login_user(request):
         user = User.objects.get(email=email)
         is_match = bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))
         if is_match:    
+            if not user.first_login:
+                user.first_login = datetime.datetime.now()
+                user.save()
             user_data = UserSerializer(user).data
             # Password is correct, authentication successful
             return Response({'success': True, 'message': 'Login successful', 'data': user_data}, status=200)
