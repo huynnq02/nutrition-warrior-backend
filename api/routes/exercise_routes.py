@@ -3,7 +3,6 @@ from ..views import exercise
 
 urlpatterns = [
     path('/add-exercise-to-daily-log/<str:user_id>', exercise.add_exercise_to_daily_log, name='add_exercise_to_daily_log'),
-
     path('/get-body-part-list/', exercise.get_body_part_list, name='get_body_part_list'),
     path('/get-exercises-for-body-part/<str:body_part>/', exercise.get_exercises_for_body_part, name='get_exercises_for_body_part'),
     path('/get-equipment-list/', exercise.get_equipment_list, name='get_equipment_list'),
