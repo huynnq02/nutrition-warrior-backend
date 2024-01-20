@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, DictField, EmailField, DecimalField, EmbeddedDocument, ListField, EmbeddedDocumentField
+from mongoengine import Document, StringField, DictField, EmailField, FloatField, EmbeddedDocument, ListField, EmbeddedDocumentField
 # from background_task import background
 
 class Food(EmbeddedDocument):
@@ -6,7 +6,7 @@ class Food(EmbeddedDocument):
     label = StringField()
     knownAs = StringField()
     nutrients = DictField(
-        field=DecimalField(),
+        field=FloatField(),
         required=True,
         default={
             "ENERC_KCAL": 0,

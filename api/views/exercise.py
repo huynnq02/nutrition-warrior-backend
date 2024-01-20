@@ -2,9 +2,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from ..models.user import User
-from ..models.daily_log import DailyLog
+from ..models.daily_log import DailyLog, ExerciseData, ExerciseSet
 from ..models.exercise import Exercise
-import datetime
+from ..serializers.user import UserSerializer
+from datetime import datetime
 import requests
 import os
 
@@ -29,40 +30,56 @@ def add_exercise_to_daily_log(request, user_id):
     """
     try:
         user = User.objects.get(id=user_id)
+        print(1)
+        today = datetime.now().date().isoformat()
+        print(today)
+        print(2)
+        for daily_log in user.daily_logs:
+            daily_log_date_str = daily_log.date.date().isoformat()
 
-        today = datetime.now().date()
-        existing_daily_log = DailyLog.objects(date__date=today, id__in=[daily_log.id for daily_log in user.daily_logs]).first()
+            print(daily_log_date_str)
+            if today == daily_log_date_str:
+                print("Equal")
 
+        print(3)
+        existing_daily_log = None
+        for daily_log in user.daily_logs:
+            daily_log_date_str = daily_log.date.date().isoformat()
+            if today == daily_log_date_str:
+                existing_daily_log = daily_log
+                break
+        print(3)
         if existing_daily_log:
             daily_log = existing_daily_log
+            print("exists")
         else:
             daily_log_data = {
                 "date": today,
                 "exercise_data": []
             }
             daily_log = DailyLog(**daily_log_data)
-            daily_log.save()
 
             user.daily_logs.append(daily_log)
             user.save()
-
+            print("not")
         exercise_data = request.data.get('exercise_data')
         exercise = Exercise(**exercise_data)
-        exercise.save()
 
         sets_data = request.data.get('sets')
-        sets = [{"reps": set_data.get('reps'), "duration": set_data.get('duration')} for set_data in sets_data]
-
-        daily_log.exercise_data.append({"exercise": exercise, "sets": sets})
-        daily_log.save()
-
-        return Response({'success': True, 'message': 'Exercise added to daily log successfully'}, status=status.HTTP_201_CREATED)
+        sets = [ExerciseSet(reps=set_data.get('reps'), duration=set_data.get('duration')) for set_data in sets_data]
+        exercise_data_instance = ExerciseData(exercise=exercise, sets=sets)
+        daily_log.exercise_data.append(exercise_data_instance)
+        
+        user.save()
+        serializer = UserSerializer(user)  # Use the serializer to convert the user object
+        serialized_user = serializer.data
+        return Response({'success': True, 'message': 'Exercise added to daily log successfully', 'data': serialized_user}, status=status.HTTP_201_CREATED)
 
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     except Exception as e:
-        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL)
+        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 #TODO: get_exercise_by_id
 
