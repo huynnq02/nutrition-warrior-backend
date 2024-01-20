@@ -4,6 +4,7 @@ from rest_framework import status
 from ..models.user import User
 from ..models.daily_log import DailyLog, ExerciseData, ExerciseSet
 from ..models.exercise import Exercise
+from ..serializers.user import UserSerializer
 from datetime import datetime
 import requests
 import os
@@ -70,8 +71,9 @@ def add_exercise_to_daily_log(request, user_id):
         daily_log.exercise_data.append(exercise_data_instance)
         
         user.save()
-
-        return Response({'success': True, 'message': 'Exercise added to daily log successfully'}, status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(user)  # Use the serializer to convert the user object
+        serialized_user = serializer.data
+        return Response({'success': True, 'message': 'Exercise added to daily log successfully', 'data': serialized_user}, status=status.HTTP_201_CREATED)
 
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

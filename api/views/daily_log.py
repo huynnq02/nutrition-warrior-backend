@@ -8,6 +8,7 @@ from ..models.user import User
 from ..models.daily_log import DailyLog
 from ..models.food import Food
 from datetime import datetime
+from ..serializers.user import UserSerializer
 @api_view(['POST'])
 def add_food_to_daily_log(request, user_id, date):
     """
@@ -68,7 +69,11 @@ def add_food_to_daily_log(request, user_id, date):
             daily_log_instance.fat_remain = max(0, user.daily_fat_goal - daily_log_instance.fat_intake)
             print(daily_log_instance)
             user.save()
-            return Response({'success': True, 'message': 'Food added to daily log successfully'}, status=status.HTTP_201_CREATED)
+            
+            serializer = UserSerializer(user)  
+            serialized_user = serializer.data
+            return Response({'success': True, 'message': 'Food added to daily log successfully', 'data': serialized_user}, status=status.HTTP_201_CREATED)
+
         else:
             return Response({'error': 'Invalid or missing meal information in the request'}, status=status.HTTP_400_BAD_REQUEST)
 
