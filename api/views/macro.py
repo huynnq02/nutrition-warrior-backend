@@ -159,9 +159,9 @@ def calculate_macros(request):
         overweight = request.data.get('overweight')
         daily_protein_ker_kg = request.data.get('daily_protein_ker_kg')
         daily_protein_for_overweight_people = request.data.get('daily_protein_for_overweight_people')
-
+        
         tdee = request.data.get('tdee')
-  
+       
         if goal == "Lose Fat":
             deficit_percentage = request.data.get('deficit_percentage')
             caloric_intake = tdee*(1-deficit_percentage/100)
@@ -189,6 +189,7 @@ def calculate_macros(request):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        print(str(e))
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PUT'])
@@ -214,7 +215,7 @@ def update_expenditure(request, id):
         user.daily_fat_goal = daily_fat_goal
         user.daily_carb_goal = daily_carb_goal
 
-        user.first_login = datetime.now()
+        user.first_login = False
         user.save()
 
         today = datetime.now().date()
@@ -239,4 +240,5 @@ def update_expenditure(request, id):
         return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     except Exception as e:
+        print(str(e))
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

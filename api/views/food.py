@@ -42,10 +42,20 @@ def search_food(request, food_name):
             if data.get('hints'):
                 data['auto_complete'] = autocomplete_data
                 return Response(data)
-
-      
         return Response(None)
     
     except Exception as e:
         # Handle exceptions and return an appropriate response
         return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def random_food_for_today(request):
+    try:
+        base_url = 'https://www.themealdb.com/api/json/v1/1/random.php'
+        response = requests.get(base_url)
+        if response.status_code == 200:
+            data = response.json().get("meals")[0]
+            return Response(data)
+        return Response(None)
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
