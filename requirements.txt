@@ -16,3 +16,5 @@ django-background-tasks
 opencv-python
 numpy
 ultralytics
+pika
+

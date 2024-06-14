@@ -1,18 +1,20 @@
-from mongoengine import Document,BooleanField, DateTimeField, StringField, EmailField, FloatField, DictField, EmbeddedDocument, ListField, EmbeddedDocumentField
+from mongoengine import Document,BooleanField, DateTimeField, StringField, EmailField, FloatField, DictField, EmbeddedDocument, ListField, EmbeddedDocumentField, ObjectIdField
 # from background_task import background
 # from .weekly_log import WeeklyLog
 from datetime import datetime, timedelta
 from .daily_log import DailyLog
 
 class User(Document):
+    id = ObjectIdField(primary_key=True)
     name = StringField(required=True)
     phone_number = StringField()
     email = EmailField(required=True)
     address = StringField()
-    password = StringField(required=True)
+    password = StringField()
     profile_picture = StringField()
     gender = StringField()
     date_of_birth = StringField()
+    image= StringField()
 
     daily_logs = ListField(EmbeddedDocumentField('DailyLog'), default=[])
     caloric_intake_goal = FloatField(default=0.0)

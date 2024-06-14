@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework_simplejwt',
     'channels',
-
 ]
 
 REST_FRAMEWORK = {

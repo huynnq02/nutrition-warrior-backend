@@ -14,6 +14,7 @@ from ..models.otp import OTP
 from ..serializers.otp import OTPSerializer
 from datetime import datetime, timedelta
 import random
+from ..queues.rabbitmq_queues import push_update_user, receive_create_user
 
 
 @api_view(['POST'])
@@ -67,7 +68,6 @@ def update_user(request, id):
     """
     try:
         user = User.objects.get(id=id)
-
         # Update the user fields based on the data provided in the request body
         for key, value in request.data.items():
             if key == 'id':
@@ -82,6 +82,15 @@ def update_user(request, id):
 
         user.save()
         user_data = UserSerializer(user).data
+        
+        message = {
+            "id": str(user.id),
+            "name": user.name,
+            "email" : user.email,
+            "image": user.image,
+        }
+        push_update_user(message)
+
         return Response({'success': True, 'message': 'User update successful', 'data': user_data}, status=status.HTTP_200_OK)
 
     except User.DoesNotExist:
