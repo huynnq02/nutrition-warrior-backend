@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from .daily_log import DailyLog
 
 class User(Document):
-    id = ObjectIdField(primary_key=True)
+    # id = ObjectIdField(primary_key=True)
     name = StringField(required=True)
     phone_number = StringField()
     email = EmailField(required=True)

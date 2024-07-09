@@ -72,7 +72,7 @@ def update_user(request, id):
         for key, value in request.data.items():
             if key == 'id':
                 continue
-            if key == 'picture':
+            if key == 'picture' and value is not None and value != 'null':
                 # Upload the picture to Cloudinary and get the URL
                 upload_result = cloudinary.uploader.upload(value)
                 profile_picture_url = upload_result['secure_url']
@@ -87,7 +87,7 @@ def update_user(request, id):
             "id": str(user.id),
             "name": user.name,
             "email" : user.email,
-            "image": user.image,
+            "image": user.profile_picture,
         }
         push_update_user(message)
 
@@ -97,8 +97,52 @@ def update_user(request, id):
         return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     except Exception as e:
+        print(str(e))
         return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['PUT'])
+def update_height_weight(request, id):
+    try:
+        user = User.objects.get(id=id)
+        # Update the user fields based on the data provided in the request body
+        # for key, value in request.data.items():
+        #     if key == 'height' or key == 'current_weight':
+        #         setattr(user, key,float(value))
+        if user:
+            user.height = request.data.get('height')
+            user.weight = request.data.get('current_weight')
+
+            user.save()
+            user_data = UserSerializer(user).data
+            return Response({'success': True, 'message': 'User update successful', 'data': {"height": user_data.get('height'), "current_weight": user_data.get('current_weight')}}, status=status.HTTP_200_OK)
+        else:
+            return Response({'success': False,'message': 'User not found'},status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        print(str(e))
+        return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def user_info(request, email):
+    try:
+        user = User.objects.get(email=email)
+        if user:
+            user_data = UserSerializer(user).data
+            # Password is correct, authentication successful
+            return Response({'success': True, 'data': user_data}, status=200)
+        else:
+            # Password is incorrect
+            return Response({'success': False, 'message': 'User not found'}, status=404)
+
+    except User.DoesNotExist:
+        # User not found
+        return Response({'success': False, 'message': 'User not found'}, status=404)
+
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=500)
+    
 @api_view(['POST'])
 def login_user(request):
     """
@@ -208,4 +252,4 @@ def change_password(request):
     
     except Exception as e:
         return Response({'success': False, 'message': str(e)}, status=500)
-    
+

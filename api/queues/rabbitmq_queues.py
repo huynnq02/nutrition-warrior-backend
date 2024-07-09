@@ -42,13 +42,24 @@ def receive_create_user():
 
 def handle_create_user_message(ch, method, properties, body):
     try:
+        from dotenv import load_dotenv
+        import os
+        from mongoengine import connect
+        import cloudinary
+        load_dotenv()
+        db_name = "nutritionwarrior"
+        connect(
+            db=db_name,
+            host=os.getenv("MONGO_URL"),
+        )
+        
         message = json.loads(body)
         id = message['id']
         email = message['email']
         phone = message['phone_number']
         name = message['name']
-        user = User(id=ObjectId(id), email=email, name=name, phone=phone)
+        user = User(email=email, name=name, phone_number=phone)
         user.save()
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as error:
         print("Cannot create user",error) 
-    ch.basic_ack(delivery_tag=method.delivery_tag)
