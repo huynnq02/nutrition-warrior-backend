@@ -34,11 +34,11 @@ def calculate_expenditure_method_1(request):
         activity_level = request.data.get('activity_level')
 
         if activity_level == "Less Active":
-            tdee = weight*14
+            tdee = weight*14*KG_TO_LBS
         elif activity_level == "Not Sure":
-            tdee = weight*16
+            tdee = weight*16*KG_TO_LBS
         elif activity_level == "More Active":
-            tdee = weight*18
+            tdee = weight*18*KG_TO_LBS
         # user_id = request.data.get('user_id')  
 
 
