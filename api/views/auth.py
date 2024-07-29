@@ -45,6 +45,14 @@ def create_user(request):
         user = User(**request.data)
         user.save()
 
+        message = {
+            "id": str(user.id),
+            "name": user.name,
+            "email" : user.email,
+            "image": user.profile_picture,
+        }
+        push_update_user(message)
+
         return Response({'success': True, 'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
     except Exception as e:
