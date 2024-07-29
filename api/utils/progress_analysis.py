@@ -4,6 +4,7 @@ from .gemini_analysis import gemini_analyze
 
 def analyze_progress(user):
     logs = []
+    print("Goal: ", user.goal)
     for log in user.daily_logs:
         logs.append({
             'date': log.date,
@@ -24,7 +25,7 @@ def analyze_progress(user):
     avg_carb_intake = df['carb_intake'].mean()
     avg_fat_intake = df['fat_intake'].mean()
 
-    gemini_response = gemini_analyze(logs)
+    gemini_response = gemini_analyze(logs, user.goal)
     parsed_response = parse_gemini_response(gemini_response)
     advice_structure = {
     'average_intake': {
