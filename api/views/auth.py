@@ -49,7 +49,7 @@ def create_user(request):
             "id": str(user.id),
             "name": user.name,
             "email" : user.email,
-            "image": user.profile_picture,
+            "image": "",
         }
         push_update_user(message)
 
