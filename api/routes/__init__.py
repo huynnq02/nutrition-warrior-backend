@@ -9,7 +9,7 @@ from .detection_routes import urlpatterns as detection_urls
 from .macro_routes import urlpatterns as macro_urls
 from .health_check_routes import urlpatterns as hc_urls
 from .progress_routes import urlpatterns as progress_urls
-
+from .key_routes import urlpatterns as key_urls
 # from .background_task_routes import urlpatterns as background_task_urls
 
 urlpatterns = [
@@ -21,6 +21,7 @@ urlpatterns = [
     path('/detection', include(detection_urls)),
     path('/macro', include(macro_urls)),
     path('/hc', include(hc_urls)),
-    path('/analysis', include(progress_urls))
+    path('/analysis', include(progress_urls)),
+    path('/key', include(key_urls))
     # path('/background-task', include(background_task_urls)),
 ]
