@@ -16,8 +16,8 @@ def analyze_progress(user):
     
     df = pd.DataFrame(logs)
 
-    weight_change = df['weight'].iloc[-1] - df['weight'].iloc[0]
-    weight_progress = f"Weight change: {weight_change} kg"
+    weight_change = df['weight'].iloc[-1] - df['weight'].iloc[0] if df['weight'].notna().any() else 0
+    weight_progress = f"Weight change: {weight_change:.2f} kg"
 
     avg_caloric_intake = df['caloric_intake'].mean()
     avg_protein_intake = df['protein_intake'].mean()
@@ -25,20 +25,36 @@ def analyze_progress(user):
     avg_fat_intake = df['fat_intake'].mean()
 
     gemini_response = gemini_analyze(logs)
-
-    advice = f"""
-    Your average daily intake is as follows:
-    - Calories: {avg_caloric_intake} kcal
-    - Protein: {avg_protein_intake} g
-    - Carbohydrates: {avg_carb_intake} g
-    - Fats: {avg_fat_intake} g
-
-    Analysis and Advice:
-    {gemini_response}
-    """
+    parsed_response = parse_gemini_response(gemini_response)
+    advice_structure = {
+    'average_intake': {
+        'calories': round(avg_caloric_intake, 2),
+        'protein': round(avg_protein_intake, 2),
+        'carbohydrates': round(avg_carb_intake, 2),
+        'fats': round(avg_fat_intake, 2)
+    },
+    'analysis': parsed_response[0],
+    'advice': parsed_response[1]
+}
 
     return {
         'weight_progress': weight_progress,
-        'advice': advice,
+        'advice': advice_structure,
         'logs': df.to_dict(orient='records')
     }
+
+def parse_gemini_response(response):
+    analysis = ""
+    advice = ""
+
+    # Split the response into sections
+    sections = response.split('##')
+
+    for section in sections:
+        if section.strip().startswith('Analysis:'):
+            analysis = section.replace('Analysis:', '').strip()
+        elif section.strip().startswith('Advice:'):
+            advice = section.replace('Advice:', '').strip()
+    analysis = analysis.replace('*', '')
+    advice = advice.replace('*', '')
+    return analysis, advice

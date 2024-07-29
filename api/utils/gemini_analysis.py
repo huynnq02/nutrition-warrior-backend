@@ -11,9 +11,28 @@ def gemini_analyze(logs):
     data = {
         'logs': logs
     }
-    prompt="You are the professional PT, please analyze the following user logs and provide insights and advice, please response with readable and concise format: " + str(data)
+    
+    prompt = """
+    As a professional personal trainer, analyze the following my logs and provide insights and advice. 
+    Structure your response exactly as follows:
+
+    Analysis:
+    • [Key observation 1]
+    • [Key observation 2]
+    ...
+    • [Key observation ...]
+
+    Advice:
+    1. [Specific advice point 1]
+    2. [Specific advice point 2]
+    ...
+    .... [Specific advice point ...]
+
+
+    Ensure each section is clearly separated and formatted as shown above and should be easy for looking. Here are the user logs:
+    """ + str(data)
+
     response = model.generate_content(prompt)
     print("🚀 ~ response:", response)
-    
     
     return response.text
