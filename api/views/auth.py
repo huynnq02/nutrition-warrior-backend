@@ -197,10 +197,13 @@ def reset_password(request):
     """
     try:
         email = request.data.get('email') 
-        user = User.objects.get(email=email)
+        print(email)
+        user = User.objects.filter(email=email).first()
+        print(user)
         if user:
             otp_code = str(random.randint(10000,99999))
             expiration_time = datetime.now() + timedelta(minutes=2)
+            print(expiration_time)
             otp_data = {
                 'email': email, 
                 'otp_code':otp_code, 
@@ -217,12 +220,14 @@ def reset_password(request):
         subject = "Password Reset OTP"
         message = f'Your OTP is {otp_code}'
         recipient_list = [email]
-
+        print("send khong duoc")
         send_mail(subject, message, None, recipient_list)
-
-        return Response({'sucess': False, 'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
+        print("send duoc")
+        
+        return Response({'success': True, 'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
     
     except Exception as e:
+        print(e)
         return Response({'success': False, 'message': str(e)}, status=500)
     
 @api_view(['POST'])
